@@ -29,6 +29,6 @@ class Incident extends Model
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_code', 'branch_code');
+        return $this->belongsTo(Branch::class, 'branch_code');
     }
 }

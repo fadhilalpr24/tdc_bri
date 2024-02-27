@@ -12,6 +12,7 @@
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="p-6 bg-white rounded-lg">
         <h1 class="mb-10 text-2xl font-medium">Add Data</h1>
+        
         @if ($errors->any())
           <div class="mb-5" role="alert">
             <div class="px-4 py-2 font-bold text-white bg-red-500 rounded-t">
@@ -28,8 +29,10 @@
             </div>
           </div>
         @endif
+
        <form action="{{ route('admin.user-management.incidents.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
             <input type="file" name="file" required>
             <button type="submit" class="px-4 py-2 ml-2 text-white rounded-lg bg-darker-blue">Import</button>
         </form>

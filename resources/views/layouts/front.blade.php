@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     @yield('title')
 
@@ -22,16 +23,18 @@
 
     <style>
         #navbar {
-            position: absolute; /* Keeps the navbar at the top */
+            position: absolute;
+            /* Keeps the navbar at the top */
             top: 0;
             width: 100%;
             z-index: 1000;
-            border-bottom: 8px solid #DDE5E9;
-            background-color: white; /* Optional: to ensure navbar background is not transparent */
+            /* border-bottom: 3px solid #DDE5E9; */
+            background-color: white;
+            /* Optional: to ensure navbar background is not transparent */
         }
 
         .navbar-link {
-            margin: 0 15px;
+            margin: 0 10px;
             text-decoration: none;
             transition: color 0.3s;
         }
@@ -39,37 +42,67 @@
         .navbar-link:hover {
             color: #2B4CDE;
         }
-
     </style>
 
 </head>
+
 <body>
     <div>
-        <nav class="flex justify-between p-6 bg-white font-poppins" id="navbar">
-            <div>
-                <a href="" class="text-3xl font-semibold">
-                    <span class="text-blue-600">TDC</span>Dashboard.
-                </a>
-            </div>
-            <div class="relative flex gap-5">
-                <a href="{{ route('user-management.request-by-type') }}" class="text-xl font-bold navbar-link text-dark-blue">Usman</a>
-                <a href="{{ route('brisol.service-ci') }}" class="text-xl font-bold navbar-link text-dark-blue">Brisol</a>
-                <div class="relative inline-block text-left">
-                    <a href="{{ route('deployments.calendar') }}" class="inline-flex justify-center w-full text-xl font-bold navbar-link text-dark-blue">
-                        Deployment
-                    </a>
+        <!-- <nav class="flex justify-between p-5 bg-white font-poppins" id="navbar"> -->
+        <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+            <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <!-- logo -->
+                        <div class="flex items-center shrink-0">
+                            <a href="{{ route('admin.dashboard') }}" class="text-3xl font-semibold font-poppins">
+                                <span class="text-blue-600">TDC</span>Dashboard.
+                            </a>
+                        </div>
+
+
+
+                        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                            <div class="flex justify-between h-16">
+                                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                    <x-nav-link href="{{ route('deployments.calendar') }}" :active="request()->routeIs('deployments.calendar')">
+                                        {{ __('Deployments') }}
+                                    </x-nav-link>
+
+                                    <x-nav-link href="{{ route('background-jobs-monitoring.daily') }}" :active="request()->routeIs('background-jobs-monitoring.daily')">
+                                        {{ __('Background Jobs') }}
+                                    </x-nav-link>
+
+                                    <x-nav-link href="{{ route('user-management.request-by-type') }}" :active="request()->routeIs('user-management.request-by-type')">
+                                        {{ __('User Management') }}
+                                    </x-nav-link>
+
+                                    <x-nav-link href="{{ route('brisol.service-ci') }}" :active="request()->routeIs('brisol.service-ci')">
+                                        {{ __('Brisol') }}
+                                    </x-nav-link>
+
+                                    <x-nav-link href="{{ route('login') }}" :active="request()->routeIs('login')">
+                                        {{ __('Admin') }}
+                                    </x-nav-link>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-                <a href="{{ route('background-jobs-monitoring.daily') }}" class="text-xl font-bold navbar-link text-dark-blue">Background Jobs</a>
-                <a href="{{ route('login') }}" class="text-xl font-bold navbar-link text-dark-blue">Admin</a>
             </div>
+
         </nav>
     </div>
 
     <div class="px-10 mx-auto font-poppins" style="margin-top: 130px">
-         @yield('content')
+        @yield('content')
     </div>
 
     @yield('script')
 
 </body>
+
 </html>

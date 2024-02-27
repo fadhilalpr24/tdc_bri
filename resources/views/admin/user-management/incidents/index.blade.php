@@ -115,7 +115,11 @@
             <div class="flex gap-4 mb-10">
               <a href="{{ route('admin.user-management.incidents.create') }}"
                  class="px-4 py-2 font-bold text-white rounded shadow-lg bg-darker-blue font-poppins">
-                + Add  Data
+                + Import Data
+              </a>
+              <a href=#
+                 class="px-4 py-2 font-bold text-white rounded shadow-lg bg-darker-blue font-poppins">
+                Export Data
               </a>
                 <a href="{{ route('user-management.request-by-type') }}" target="_blank"
                     class="px-4 py-2 font-bold text-white rounded shadow-lg bg-darker-blue font-poppins">

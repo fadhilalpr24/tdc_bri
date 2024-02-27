@@ -51,22 +51,25 @@ class IncidentsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls,csv',
         ], [
             'file.required' => 'File is required',
             'file.mimes' => 'File must be an Excel document',
         ]);
 
         $file = $request->file('file');
+        $namaFile = time() . '_' . $file->getClientOriginalName(); // Generate unique file name
+        $file->move(public_path('DataImport'), $namaFile);
 
-        // delete all incidents of the current month
+        // Delete all incidents of the current month
         $currentMonth = date('m');
         $currentYear = date('Y');
         Incident::whereMonth('reported_date', $currentMonth)
                 ->whereYear('reported_date', $currentYear)
                 ->delete();
 
-        Excel::import(new IncidentsImport, $file);
+        // Import the data from the Excel file
+        Excel::import(new IncidentsImport, public_path('DataImport/'.$namaFile));
 
         return redirect()->route('admin.user-management.incidents.index')
             ->with('success', 'Incidents imported successfully');

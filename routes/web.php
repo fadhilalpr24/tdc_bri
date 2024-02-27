@@ -51,8 +51,8 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    ])->group(function () {
-        Route::prefix('admin')->name('admin.')->group(function () {
+])->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::prefix('deployments')->name('deployments.')->group(function () {
             Route::resource('deployment', DeploymentController::class)->middleware('permission:manage deployments');

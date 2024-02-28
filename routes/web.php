@@ -78,6 +78,8 @@ Route::middleware([
 
             // only view incidents user management and monthly target user management
             Route::get('/monthly-target', [UsmanMonthlyTargetController::class, 'index'])->name('monthly-target.index')->middleware('permission:view monthly target user management');
+            // Route::get('/get-incidents-data', [UsmanMonthlyTargetController::class, 'index'])->name('get.incidents.data'); //tambahan dhila 
+
         });
 
         Route::prefix('brisol')->name('brisol.')->group(function () {

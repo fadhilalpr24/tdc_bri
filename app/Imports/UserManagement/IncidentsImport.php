@@ -37,7 +37,6 @@ class IncidentsImport implements ToModel, WithHeadingRow
                 'reported_date' => $this->parseIndonesianDate($row['tanggal_disetujui']),
                 'req_type' => $row['jenis_pengajuan'],
                 'branch_code' => $branchCode,
-                // 'branch_name' => $branchCode,
                 'req_status' => $row['status_pengajuan'],
                 'exec_status' => $execStatus,
                 'execution_date' => $row['tanggal_dikerjakan'] ? $this->parseIndonesianDate($row['tanggal_dikerjakan']) : null,

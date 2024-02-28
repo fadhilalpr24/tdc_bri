@@ -8,6 +8,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\UserManagement\Incident;
 use Yajra\DataTables\Facades\DataTables;
 use App\Imports\UserManagement\IncidentsImport;
+// use DB;
+use Illuminate\Support\Facades\DB;
 
 class IncidentsController extends Controller
 {
@@ -16,25 +18,54 @@ class IncidentsController extends Controller
      */
     public function index()
     {
+        // $query = DB::table('usman_incident')
+        // ->leftJoin('usman_branch', 'usman_incident.branch_code', '=','usman_branch.branch_code')
+        // ->select('usman_incident.reported_date','usman_incident.req_type','usman_branch.branch_name','usman_branch.kanwil_name','usman_incident.req_status','usman_incident.exec_status','usman_incident.execution_date','usman_incident.sla_category')
+        // ->get();
+
+        // return view('admin.user-management.incidents.index')->with('query',$query);
+
         // if request is ajax, return datatable
+        // if (request()->ajax()) {
+        //     $query = Incident::with(['branch']);
+
+        //     return DataTables::of($query)
+        //         ->addColumn('branch_name', function ($incident) {
+        //             return $incident->branch->branch_name;
+        //         })
+        //         ->addColumn('kanwil_name', function ($incident) {
+        //             return $incident->branch->kanwil_name;
+        //         })
+        //         ->addColumn('type_name', function ($incident) {
+        //             return $incident->req_type;
+        //         })
+        //         ->rawColumns(['branch_name', 'type_name'])
+        //         ->make();
+        // }
+
         if (request()->ajax()) {
-            $query = Incident::with(['branch']);
-
+            $query = DB::table('usman_incident')
+                ->leftJoin('usman_branch', 'usman_incident.branch_code', '=', 'usman_branch.branch_code')
+                ->select('usman_incident.id','usman_incident.reported_date', 'usman_incident.req_type', 'usman_branch.branch_name', 'usman_branch.kanwil_name', 'usman_incident.req_status', 'usman_incident.exec_status', 'usman_incident.execution_date', 'usman_incident.sla_category')
+                ->get();
+        
             return DataTables::of($query)
-                ->addColumn('branch_name', function ($incident) {
-                    return $incident->branch->branch_name;
+                ->addColumn('branch_name', function ($row) {
+                    return $row->branch_name;
                 })
-                ->addColumn('kanwil_name', function ($incident) {
-                    return $incident->branch->kanwil_name;
+                ->addColumn('kanwil_name', function ($row) {
+                    return $row->kanwil_name;
                 })
-                ->addColumn('type_name', function ($incident) {
-                    return $incident->req_type;
+                ->addColumn('req_type', function ($row) {
+                    return $row->req_type;
                 })
-                ->rawColumns(['branch_name', 'type_name'])
-                ->make();
-        }
+                ->rawColumns(['branch_name', 'req_type'])
+                ->make(true);
 
+        }//tinggal masukkin else biar bisa detek soalnya ini masih yg kondisi berhasil aja jd semua kemungkinan bisa muncul popup berhasil tp ada pesan error dari website
+        
         return view('admin.user-management.incidents.index');
+        
     }
 
     /**

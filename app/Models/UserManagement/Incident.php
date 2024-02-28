@@ -11,7 +11,7 @@ class Incident extends Model
 
     protected $table = 'usman_incident';
 
-    protected $fillable = [
+    protected $fillable = [        
         'reported_date',
         'req_type',
         'branch_code',
@@ -29,6 +29,6 @@ class Incident extends Model
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_code');
+        return $this->belongsTo(Branch::class, 'branch_code', 'branch_code');
     }
 }

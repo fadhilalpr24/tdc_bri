@@ -65,8 +65,8 @@
                 }
             },
             {
-                data: 'type_name',
-                name: 'type_name',
+                data: 'req_type',
+                name: 'req_type',
                 searchable: true,
             },
             {

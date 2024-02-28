@@ -58,19 +58,17 @@ class IncidentsController extends Controller
         ]);
 
         $file = $request->file('file');
-        $namaFile = time() . '_' . $file->getClientOriginalName(); // Generate unique file name
-        $file->move(public_path('DataImport'), $namaFile);
+        $namaFile = $file->getClientOriginalName();
+        $file->move('DataImport', $namaFile);
 
-        // Delete all incidents of the current month
+        // Hapus semua insiden bulan ini
         $currentMonth = date('m');
         $currentYear = date('Y');
         Incident::whereMonth('reported_date', $currentMonth)
-                ->whereYear('reported_date', $currentYear)
-                ->delete();
+            ->whereYear('reported_date', $currentYear)
+            ->delete();
 
-        // Import the data from the Excel file
-        Excel::import(new IncidentsImport, public_path('DataImport/'.$namaFile));
-
+        Excel::import(new IncidentsImport, public_path('/DataImport/' . $namaFile));
         return redirect()->route('admin.user-management.incidents.index')
             ->with('success', 'Incidents imported successfully');
     }

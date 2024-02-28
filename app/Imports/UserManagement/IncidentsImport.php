@@ -17,7 +17,7 @@ class IncidentsImport implements ToModel, WithHeadingRow
     {
         return DB::transaction(function () use ($row) {
             $branchCode = ltrim($row['branch_code'], '0'); // Menghapus nol di awal
-
+            
             // Pastikan panjang branch_code tidak melebihi 4 digit
             if (strlen($branchCode) > 4) {
                 // Anda bisa menentukan tindakan yang sesuai di sini
@@ -37,6 +37,7 @@ class IncidentsImport implements ToModel, WithHeadingRow
                 'reported_date' => $this->parseIndonesianDate($row['tanggal_disetujui']),
                 'req_type' => $row['jenis_pengajuan'],
                 'branch_code' => $branchCode,
+                // 'branch_name' => $branchCode,
                 'req_status' => $row['status_pengajuan'],
                 'exec_status' => $execStatus,
                 'execution_date' => $row['tanggal_dikerjakan'] ? $this->parseIndonesianDate($row['tanggal_dikerjakan']) : null,
@@ -72,3 +73,4 @@ class IncidentsImport implements ToModel, WithHeadingRow
         return Carbon::createFromFormat('d-M-y', $dateInput)->format('Y-m-d');
     }
 }
+

@@ -45,7 +45,8 @@ class IncidentsImport implements ToModel, WithHeadingRow
         });
     }
 
-    private function parseIndonesianDate($dateInput) {
+    private function parseIndonesianDate($dateInput)
+    {
         if (is_numeric($dateInput)) {
             return Date::excelToDateTimeObject($dateInput)->format('Y-m-d');
         }

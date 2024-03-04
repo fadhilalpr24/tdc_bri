@@ -20,6 +20,7 @@ export default {
             colors: {
                 "darker-blue": "#203148",
                 "dark-blue": "#152C5B",
+                'primary': " #FFA337",
             },
         },
     },

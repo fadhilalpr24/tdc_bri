@@ -40,7 +40,6 @@ class UserManagementController extends Controller
                 'incidentCounts' => $incidentCounts,
                 'totalRequests' => $totalRequests
             ]);
-
         } else {
             $month = $request->input('month', date('m'));
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
@@ -138,26 +137,42 @@ class UserManagementController extends Controller
     {
         $month = $request->input('month', date('m'));
         $year = $request->input('year', date('Y'));
+        $reqType = $request->input('req_type');
 
         $query = DB::table('usman_incident')
-                ->join('usman_branch', 'usman_incident.branch_code', '=', 'usman_branch.branch_code')
-                ->select('usman_branch.kanwil_name', DB::raw('count(usman_incident.id) as total_requests'))
-                ->groupBy('usman_branch.kanwil_name')
-                ->orderByDesc('total_requests')
-                ->limit(5);
+            ->join('usman_branch', 'usman_incident.branch_code', '=', 'usman_branch.branch_code')
+            ->select('usman_branch.kanwil_name', DB::raw('count(usman_incident.id) as total_requests'))
+            ->groupBy('usman_branch.kanwil_name')
+            ->orderByDesc('total_requests')
+            ->limit(5);
 
-        if ($month) {
-            $query->whereMonth('usman_incident.reported_date', $month);
-        }
+        if ($reqType == 'all') {
+            // Jika nilai req_type = 'all', tampilkan semua jenis permintaan
+            if ($month) {
+                $query->whereMonth('usman_incident.reported_date', $month);
+            }
 
-        if ($year) {
-            $query->whereYear('usman_incident.reported_date', $year);
+            if ($year) {
+                $query->whereYear('usman_incident.reported_date', $year);
+            }
+        } else if ($reqType) {
+            // Filter berdasarkan jenis permintaan tertentu
+            $query->where('usman_incident.req_type', $reqType);
+
+            if ($month) {
+                $query->whereMonth('usman_incident.reported_date', $month);
+            }
+
+            if ($year) {
+                $query->whereYear('usman_incident.reported_date', $year);
+            }
         }
 
         $kanwils = $query->get();
 
         return response()->json($kanwils);
     }
+
 
 
     public function showTopBranchRequestsChart()
@@ -172,8 +187,8 @@ class UserManagementController extends Controller
         $year = $request->input('year', date('Y'));
 
         $monthlyTargets = MonthlyTarget::where('year', $year)
-                                    ->orderBy('month', 'asc')
-                                    ->get();
+            ->orderBy('month', 'asc')
+            ->get();
 
         $targetData = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -185,12 +200,12 @@ class UserManagementController extends Controller
         $actualPercentageData = [];
         foreach ($months as $month) {
             $totalIncidents = Incident::whereYear('reported_date', $year)
-                                    ->whereMonth('reported_date', $month)
-                                    ->count();
+                ->whereMonth('reported_date', $month)
+                ->count();
             $completedIncidents = Incident::whereYear('execution_date', $year)
-                                        ->whereMonth('execution_date', $month)
-                                        ->where('exec_status', 'Done')
-                                        ->count();
+                ->whereMonth('execution_date', $month)
+                ->where('exec_status', 'Done')
+                ->count();
 
             if ($totalIncidents != 0) {
                 $percentageCompleted = ($completedIncidents / $totalIncidents) * 100;

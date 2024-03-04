@@ -15,7 +15,7 @@ class BackgroundJobController extends Controller
      */
     public function index()
     {
-        if (request()-> ajax()) {
+        if (request()->ajax()) {
             $query = BackgroundJob::with('process')->select('bjm_background_jobs.*');
 
             return DataTables::of($query)
@@ -71,8 +71,15 @@ class BackgroundJobController extends Controller
         ]);
 
         // Check if background job already exists in that date
-        if (BackgroundJob::where('process_id', $request->process_id)->where('execution_date', $request->execution_date)->exists()) {
-            return redirect()->back()->with('error', 'Background job already exists in that date.');
+        $existingJob = BackgroundJob::where('process_id', $request->process_id)
+            ->where('execution_date', $request->execution_date)
+            ->first();
+
+        if ($existingJob) {
+
+            $request->session()->put('existingJobId', $existingJob->id);
+
+            return redirect()->back()->withErrors(['error' => 'Background job already exists in that date. Would you like to edit it?']);
         }
 
         BackgroundJob::create($request->only([
@@ -153,16 +160,15 @@ class BackgroundJobController extends Controller
         $type = $request->input('type');
         $currentProcessId = $request->input('currentProcessId');
 
-        $processes = Process::where(function($query) use ($type, $currentProcessId) {
-                            $query->where('type', $type)
-                                ->where('is_active', true);
-                            if ($currentProcessId) {
-                                $query->orWhere('id', $currentProcessId);
-                            }
-                        })
-                        ->get();
+        $processes = Process::where(function ($query) use ($type, $currentProcessId) {
+            $query->where('type', $type)
+                ->where('is_active', true);
+            if ($currentProcessId) {
+                $query->orWhere('id', $currentProcessId);
+            }
+        })
+            ->get();
 
         return response()->json($processes);
     }
-
 }

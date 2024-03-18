@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\UserManagement\MonthlyTargetController as UsmanMo
 use App\Http\Controllers\Front\UserManagement\UserManagementController as FrontUserManagementController;
 use App\Http\Controllers\Front\BackgroundJobsMonitoring\BackgroundJobController as FrontBackgroundJobController;
 
+use App\Models\Deployment\DeploymentModule;
+use App\Models\Deployment\DeploymentServerType;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,6 +48,35 @@ Route::get('/brisol/slm-status', [FrontBrisolController::class, 'showSLMStatusCh
 Route::get('/brisol/reported-source', [FrontBrisolController::class, 'showReportedSourceChart'])->name('brisol.reported-source');
 Route::get('/brisol/monthly-target', [FrontBrisolController::class, 'showMonthlyDataTargetActualChart'])->name('brisol.monthly-target');
 Route::get('/brisol/service-ci-top-issue', [FrontBrisolController::class, 'showServiceCITopIssueChart'])->name('brisol.service-ci-top-issue');
+
+//ini untuk controller module ke server
+Route::get('/tambahmodule', function(){
+    $module = DeploymentModule::find(2);
+    $server = ['1','2'];
+    $module->serverTypes()->sync($server);
+    echo "sukses";
+});
+
+Route::get('/hapusmodule', function(){
+    $module = DeploymentModule::find(2);
+    $module->serverTypes()->detach();
+    echo "sukses menghapus data module";
+});
+
+//ini untuk controller server ke module
+Route::get('/tambahserver', function(){
+    $server = DeploymentServerType::find(1);
+    $module = ['1','2'];
+    $server->module()->sync($module);
+    echo "sukses";
+});
+
+Route::get('/hapusserver', function(){
+    $server = DeploymentServerType::find(2);
+    $server->module()->detach();
+    echo "sukses menghapus data server";
+});
+
 
 Route::middleware([
     'auth:sanctum',

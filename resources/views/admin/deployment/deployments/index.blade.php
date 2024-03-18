@@ -38,7 +38,28 @@
             type: 'GET',
         },
         columns: [
-        { data: 'id', name: 'id' },
+        { data: 'id_deployment', name: 'id_deployment',
+            orderable: true,
+            searchable: true,
+            render: function(data, type, row) {
+
+                var id = row.id_deployment; // id diambil langsung dari objek row
+                // URL edit dengan id sebagai string varchar
+                var url = '{{ route("admin.deployments.deployment.edit", ":id") }}';
+                url = url.replace(':id', id);
+                
+            // Menghapus spasi dari judul
+            var titleWithoutSpace = row.title.replace(/\s/g, '');
+            var dateComponents = row.deploy_date.split('-');
+            var day = dateComponents[0];
+            var month = dateComponents[1];
+            var year = dateComponents[2];
+            var date = day + month + year;
+
+            // Mengembalikan hasil tanpa spasi antara judul dan waktu
+            return titleWithoutSpace + '_' + date;
+
+        }},
         { data: 'title', name: 'title' },
         { data: 'module', name: 'module' },
         { data: 'server_type', name: 'server_type' },
@@ -102,7 +123,8 @@
                         <th style="max-width: 1%">Action</th>
                     </tr>
                     </thead>
-                <tbody></tbody>
+                <tbody>
+                </tbody>
             </table>
 
         </div>

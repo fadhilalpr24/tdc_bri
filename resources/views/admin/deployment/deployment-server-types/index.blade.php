@@ -49,10 +49,10 @@
             data: 'name',
             name: 'name'
           },
-          {
-            data: 'module.name', // asumsikan ada kolom 'name' di tabel module
-            name: 'module.name'
-          },
+          // {
+          //   data: 'module.name', // asumsikan ada kolom 'name' di tabel module
+          //   name: 'module.name'
+          // },
           {
                 data: 'is_active',
                 name: 'is_active',
@@ -134,7 +134,7 @@
               <tr>
                 <th style="max-width: 1%">ID</th>
                 <th>Server Type Name</th>
-                <th>Module Name</th>
+                <!-- <th>Module Name</th> -->
                 <th>Status</th>
                 <th style="max-width: 1%">Action</th>
               </tr>

@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deployment_server_types', function (Blueprint $table) {
+        Schema::create('deployment_modules', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 10);
-            $table->unsignedBigInteger('module_id');
+            $table->string('name',20);
             $table->boolean('is_active')->default(true);
-
-            $table->foreign('module_id')->references('id')->on('deployment_modules')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deployment_server_types');
+        Schema::dropIfExists('deployment_modules');
     }
 };

@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deployment_modules', function (Blueprint $table) {
+        Schema::create('deployment_server_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 15);
+            $table->string('name',20);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deployment_modules');
+        Schema::dropIfExists('deployment_server_types');
     }
 };

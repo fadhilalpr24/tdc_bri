@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Deployment extends Model
 {
     use HasFactory;
-
+    // protected $primaryKey = 'id';
+    // public $incrementing = false;
     protected $fillable = [
+        'id_deployment',
         'title',
         'module_id',
         'server_type_id',
@@ -23,11 +25,13 @@ class Deployment extends Model
     // Relationships
     public function module()
     {
-        return $this->belongsTo(DeploymentModule::class);
+        return $this->hasMany(DeploymentModule::class);
     }
 
     public function serverType()
     {
-        return $this->belongsTo(DeploymentServerType::class);
+        return $this->hasMany(DeploymentServerType::class);
     }
+
+    
 }

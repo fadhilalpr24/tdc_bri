@@ -15,11 +15,6 @@
                 <form action="{{ route('admin.deployments.deployment.store') }}" method="POST">
                     @csrf
 
-                    <!-- tambahan untuk menyimpan data jumlah modul dan jenis server  -->
-
-                    <!-- <input type="hidden" id="jumlah_modul" name="jumlah_modul">
-                    <input type="hidden" id="jumlah_server" name="jumlah_server"> -->
-
                     <div class="grid grid-cols-2 gap-16">
                         <div>
                             <!-- Title -->
@@ -40,10 +35,145 @@
                                 </div>
                                 <!-- <div class="mb-4 col-span-1"></div> Menghapus label kosong -->
                                 <div class="flex-1 flex items-end justify-end">
-                                    <button type="button" onclick="createArray()" class="block w-full px-4 py-3 leading-tight bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Tambahkan</button>
+                                    <button onclick="createArray()" class="block w-full px-4 py-3 leading-tight bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Tambahkan</button>
                                 </div>
                             </div>
-                        
+
+                            <script>
+                                // Objek untuk menyimpan pilihan server type untuk setiap modul
+                                var selectedServerTypes = {};
+
+                                function createArray() {
+                                    var jmodulValue = parseInt(document.getElementById("jmodul").value);
+                                    var jserverValue = parseInt(document.getElementById("jserver").value);
+
+                                    // Pastikan jmodul dan jserver tidak kosong
+                                    if (isNaN(jmodulValue) || isNaN(jserverValue)) {
+                                        alert("Mohon isi jumlah modul dan jumlah server type dengan angka.");
+                                        return;
+                                    }
+
+                                    // Membuat array berdasarkan nilai input jumlah modul dan jumlah server type
+                                    var modulArray = [];
+                                    modulArray.push(jmodulValue);
+                                    modulArray.push(jserverValue);
+
+                                    // Menambahkan elemen-elemen dropdown Module sesuai dengan jumlah modul
+                                    var moduleDropdownContainer = document.getElementById("module-dropdowns");
+                                    moduleDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
+
+                                    for (var i = 0; i < jmodulValue; i++) {
+                                        var moduleDropdown = document.createElement("div");
+                                        moduleDropdown.classList.add("module-dropdown", "mb-4");
+                                        moduleDropdown.innerHTML = `
+            <label for="module_id_${i}" class="block mb-2 text-sm font-bold text-gray-600">Module ${i + 1}:</label>
+            <div class="flex items-center">
+                <select id="module_id_${i}" name="module_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
+                    <option value="" disabled selected>-- Pilih Module --</option>
+                    <!-- Di sini Anda dapat menambahkan kode untuk menampilkan opsi modul sesuai kebutuhan Anda -->
+                    @foreach ($modules as $module)
+                        <option value="{{ $module->id }}">{{ $module->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        `;
+                                        moduleDropdownContainer.appendChild(moduleDropdown);
+
+                                        // Tambahkan event listener untuk setiap dropdown module
+                                        var moduleDropdownSelect = moduleDropdown.querySelector(`#module_id_${i}`);
+                                        moduleDropdownSelect.addEventListener('change', function(event) {
+                                            updateServerTypeDropdowns(event.target);
+                                        });
+                                    }
+
+                                    // Menambahkan elemen-elemen dropdown Server Type sesuai dengan jumlah server type
+                                    var serverTypeDropdownContainer = document.getElementById("server-type-dropdowns");
+                                    serverTypeDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
+
+                                    for (var j = 0; j < jserverValue; j++) {
+                                        var serverTypeDropdown = document.createElement("div");
+                                        serverTypeDropdown.classList.add("server-type-dropdown", "mb-4");
+                                        serverTypeDropdown.innerHTML = `
+            <label for="server_type_id_${j}" class="block mb-2 text-sm font-bold text-gray-600">Server Type ${j + 1}:</label>
+            <div class="flex items-center">
+                <select id="server_type_id_${j}" name="server_type_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
+                    <option value="" disabled selected>-- Pilih Server Type (Pilih Module Terlebih Dahulu)--</option>
+                    <!-- Options will be populated based on the selected module -->
+                    @foreach ($serverTypes as $serverType)
+                        <option value="{{ $serverType->id }}">{{ $serverType->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        `;
+                                        serverTypeDropdownContainer.appendChild(serverTypeDropdown);
+                                    }
+                                }
+                                // Fungsi untuk memperbarui dropdown Server Type saat module dipilih
+                                // Inisialisasi objek untuk menyimpan opsi server type dari setiap modul yang dipilih
+                                var selectedServerTypes = {};
+
+                                // Inisialisasi objek untuk menyimpan opsi server type dari setiap modul yang dipilih
+                                var selectedServerTypes = {};
+
+                                // Fungsi untuk memperbarui dropdown Server Type saat module dipilih
+                                function updateServerTypeDropdowns(selectedModuleDropdown) {
+                                    var moduleId = selectedModuleDropdown.value;
+                                    var serverTypeDropdowns = document.querySelectorAll('[name="server_type_id[]"]');
+                                    var serverTypeDropdownId = selectedModuleDropdown.id.replace("module_id_", ""); // Mendapatkan index dropdown modul
+
+                                    // Mengecek apakah module dipilih
+                                    if (moduleId) {
+                                        // Fetch server types untuk module yang dipilih
+                                        fetch(`/api/modules/${moduleId}/server-types`, {
+                                                method: 'GET',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                            })
+                                            .then(response => response.json())
+                                            .then(serverTypes => {
+                                                // Simpan pilihan server type untuk modul yang dipilih
+                                                selectedServerTypes[serverTypeDropdownId] = serverTypes;
+
+                                                // Gabungkan opsi server type dari semua modul yang dipilih
+                                                var combinedServerTypes = [];
+                                                Object.values(selectedServerTypes).forEach(types => {
+                                                    combinedServerTypes = combinedServerTypes.concat(types);
+                                                });
+
+                                                // Tambahkan opsi baru ke semua dropdown Server Type
+                                                serverTypeDropdowns.forEach(serverTypeDropdown => {
+                                                    // Kosongkan dropdown Server Type
+                                                    serverTypeDropdown.innerHTML = "";
+                                                    combinedServerTypes.forEach(serverType => {
+                                                        var option = document.createElement('option');
+                                                        option.value = serverType.id;
+                                                        option.textContent = serverType.name;
+                                                        serverTypeDropdown.appendChild(option);
+                                                    });
+                                                });
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching server types:', error);
+                                            });
+                                    } else {
+                                        // Kosongkan dropdown Server Type jika module tidak dipilih
+                                        serverTypeDropdowns.forEach(serverTypeDropdown => {
+                                            serverTypeDropdown.innerHTML = "";
+                                            serverTypeDropdown.disabled = true; // Menonaktifkan dropdown Server Type
+                                            var defaultOption = document.createElement('option');
+                                            defaultOption.value = "";
+                                            defaultOption.textContent = "-- Pilih Module Terlebih Dahulu --";
+                                            defaultOption.disabled = true;
+                                            defaultOption.selected = true;
+                                            serverTypeDropdown.appendChild(defaultOption);
+                                        });
+
+                                        // Hapus pilihan server type untuk modul yang dipilih
+                                        delete selectedServerTypes[serverTypeDropdownId];
+                                    }
+                                }
+                            </script>
 
                             <!-- Module ID Dropdown -->
                             <div id="module-dropdowns">
@@ -111,89 +241,11 @@
                         <button type="submit" class="px-4 py-2 font-bold text-white rounded shadow-lg bg-darker-blue">Add
                             Deployment</button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
-
-    <script>
-                                    function createArray() {
-                                    var jmodulValue = parseInt(document.getElementById("jmodul").value);
-                                    var jserverValue = parseInt(document.getElementById("jserver").value);
-
-                                    // Pastikan jmodul dan jserver tidak kosong
-                                    if (isNaN(jmodulValue) || isNaN(jserverValue)) {
-                                        alert("Mohon isi jumlah modul dan jumlah server type dengan angka.");
-                                        return;
-                                    }
-
-                                    // Membuat array berdasarkan nilai input jumlah modul dan jumlah server type
-                                    var modulArray = [];
-                                    modulArray.push(jmodulValue);
-                                    modulArray.push(jserverValue);
-
-                                    // Menambahkan elemen-elemen dropdown Module sesuai dengan jumlah modul
-                                    var moduleDropdownContainer = document.getElementById("module-dropdowns");
-                                    moduleDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
-
-                                    for (var i = 0; i < jmodulValue; i++) {
-                                        var moduleDropdown = document.createElement("div");
-                                        moduleDropdown.classList.add("module-dropdown", "mb-4");
-                                        moduleDropdown.innerHTML = `
-            <label for="module_id_${i}" class="block mb-2 text-sm font-bold text-gray-600">Module ${i + 1}:</label>
-            <div class="flex items-center">
-                <select id="module_id_${i}" name="module_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
-                    <option value="" disabled selected>-- Pilih Module --</option>
-                    <!-- Di sini Anda dapat menambahkan kode untuk menampilkan opsi modul sesuai kebutuhan Anda -->
-                    @foreach ($modules as $module)
-                        <option value="{{ $module->id }}">{{ $module->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        `;
-                                        moduleDropdownContainer.appendChild(moduleDropdown);
-
-                                        // Tambahkan event listener untuk setiap dropdown module
-                                        var moduleDropdownSelect = moduleDropdown.querySelector(`#module_id_${i}`);
-                                        // moduleDropdownSelect.addEventListener('change', function(event) {
-                                        // });
-                                    }
-
-                                    // Menambahkan elemen-elemen dropdown Server Type sesuai dengan jumlah server type
-                                    var serverTypeDropdownContainer = document.getElementById("server-type-dropdowns");
-                                    serverTypeDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
-
-                                    for (var j = 0; j < jserverValue; j++) {
-                                        var serverTypeDropdown = document.createElement("div");
-                                        serverTypeDropdown.classList.add("server-type-dropdown", "mb-4");
-                                        serverTypeDropdown.innerHTML = `
-            <label for="server_type_id_${j}" class="block mb-2 text-sm font-bold text-gray-600">Server Type ${j + 1}:</label>
-            <div class="flex items-center">
-                <select id="server_type_id_${j}" name="server_type_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
-                    <option value="" disabled selected>-- Pilih Server Type--</option>
-                    <!-- Options will be populated based on the selected module -->
-                    @foreach ($serverTypes as $serverType)
-                        <option value="{{ $serverType->id }}">{{ $serverType->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        `;
-                                        serverTypeDropdownContainer.appendChild(serverTypeDropdown);
-                                        
-                                        var serverTypeDropdownSelect = serverTypeDropdown.querySelector(`#server_type_id_${j}`);
-                                        // serverTypeDropdownSelect.addEventListener('change', function(event) {
-                                        //     // updateServerTypeDropdowns(event.target);
-                                        // });
-                                    }
-                                    // Lanjutkan submit form
-                                    document.querySelector("form").submit();
-                                }
-                                // Fungsi untuk memperbarui dropdown Server Type saat module dipilih
-                                // Inisialisasi objek untuk menyimpan opsi server type dari setiap modul yang dipilih
-                                var selectedServerTypes = {};
-
-
-                            </script>
 
     <!-- Markup yang ada sebelumnya -->
     <x-slot name="script">
@@ -203,6 +255,13 @@
                 var clone = moduleDropdowns.querySelector('.module-dropdown').cloneNode(true);
                 var moduleclone = moduleDropdowns.appendChild(clone);
 
+                // Trigger function to rebuild server type dropdowns when a new module is added
+                rebuildServerTypeDropdowns();
+
+                // Add event listener to the newly added module dropdown
+                moduleclone.addEventListener('change', function() {
+                    rebuildServerTypeDropdowns();
+                });
             }
 
             function addServerType() {
@@ -211,6 +270,56 @@
                 var serverclones = serverTypeDropdowns.appendChild(clone);
             }
 
+            function rebuildServerTypeDropdowns() {
+                var moduleDropdowns = document.querySelectorAll('[name="module_id[]"]');
+                var selectedModules = Array.from(moduleDropdowns).map(function(moduleDropdown) {
+                    return moduleDropdown.value;
+                });
+
+                // Remove duplicate module IDs
+                var uniqueSelectedModules = Array.from(new Set(selectedModules));
+
+                // Fetch server types for all selected modules
+                var promises = uniqueSelectedModules.map(moduleId => {
+                    return fetch(`/api/modules/${moduleId}/server-types`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => {
+                            return response.json();
+                        });
+                });
+
+                Promise.all(promises)
+                    .then(results => {
+                        // Merge server types from all modules
+                        var combinedServerTypes = results.reduce((accumulator, currentValue) => {
+                            return accumulator.concat(currentValue);
+                        }, []);
+
+                        // Update all server type dropdowns
+                        var serverTypeSelects = document.querySelectorAll('[name="server_type_id[]"]'); //ini array
+                        serverTypeSelects.forEach(function(serverTypeSelect) {
+                            serverTypeSelect.innerHTML = '';
+
+                            combinedServerTypes.forEach(function(serverType) {
+                                var option = new Option(serverType.name, serverType.id);
+                                serverTypeSelect.appendChild(option);
+                            });
+
+                            // Set the selected server type to the one previously selected if it exists
+                            var previouslySelectedServerType = serverTypeSelect.dataset.previouslySelected;
+                            if (previouslySelectedServerType) {
+                                serverTypeSelect.value = previouslySelectedServerType;
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching server types:', error);
+                    });
+            }
 
             document.addEventListener('DOMContentLoaded', function() {
                 var moduleDropdowns = document.querySelectorAll('[name="module_id[]"]'); //ini array diubah
@@ -221,6 +330,9 @@
                 });
             });
         </script>
+
+
+
     </x-slot>
 
 </x-app-layout>

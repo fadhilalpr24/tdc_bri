@@ -18,13 +18,23 @@ class DeploymentModule extends Model
 
     // Relationships
     
-    public function serverTypes()
-    {
-        return $this->belongsToMany(DeploymentServerType::class, 'deployments', 'module_id', 'server_type_id')->withTimeStamps();
-    }
+    // public function serverTypes()
+    // {
+    //     return $this->belongsToMany(DeploymentServerType::class, 'deployments', 'module_id', 'server_type_id')->withTimeStamps();
+    // }
 
     // public function deployment() : BelongsToMany
     // {
     //     return $this->belongsToMany(Deployment::class, 'deployments', 'modules_id', 'server_types_id');
     // }
+
+    public function deployments()
+    {
+        return $this->hasMany(Deployment::class);
+    }
+
+    public function serverTypes()
+    {
+        return $this->hasMany(DeploymentServerType::class);
+    }
 }

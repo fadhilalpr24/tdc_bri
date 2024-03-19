@@ -23,32 +23,37 @@
                                 <input type="text" id="title" name="title" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" value="{{ old('title') }}" required>
                             </div>
 
+                            <!-- Deploy Date -->
+                            <div class="mb-4">
+                                <label for="deploy_date" class="block mb-2 text-sm font-bold text-gray-600">Deploy
+                                    Date:</label>
+                                <input type="date" id="deploy_date" name="deploy_date" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" value="{{ old('deploy_date') }}" required>
+                            </div>
+
 
                             <div class="flex gap-4 mb-4">
                                 <div class="flex-1">
-                                    <label for="jmodul" class="block mb-2 text-sm font-bold text-gray-600">Jumlah Modul</label>
+                                    <label for="jmodul" class="block mb-2 text-sm font-bold text-gray-600">Jumlah Module dan Server Type</label>
                                     <input type="number" id="jmodul" name="jmodul" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" value="" required>
                                 </div>
-                                <div class="flex-1">
+                                <!-- <div class="flex-1">
                                     <label for="jserver" class="block mb-2 text-sm font-bold text-gray-600">Jumlah Server Type</label>
                                     <input type="number" id="jserver" name="jserver" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" value="" required>
-                                </div>
+                                </div> -->
                                 <!-- <div class="mb-4 col-span-1"></div> Menghapus label kosong -->
                                 <div class="flex-1 flex items-end justify-end">
                                     <button onclick="createArray()" class="block w-full px-4 py-3 leading-tight bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Tambahkan</button>
                                 </div>
                             </div>
 
-                            <script>
-                                // Objek untuk menyimpan pilihan server type untuk setiap modul
-                                var selectedServerTypes = {};
 
+                            <script>
                                 function createArray() {
                                     var jmodulValue = parseInt(document.getElementById("jmodul").value);
-                                    var jserverValue = parseInt(document.getElementById("jserver").value);
+
 
                                     // Pastikan jmodul dan jserver tidak kosong
-                                    if (isNaN(jmodulValue) || isNaN(jserverValue)) {
+                                    if (isNaN(jmodulValue)) {
                                         alert("Mohon isi jumlah modul dan jumlah server type dengan angka.");
                                         return;
                                     }
@@ -56,16 +61,23 @@
                                     // Membuat array berdasarkan nilai input jumlah modul dan jumlah server type
                                     var modulArray = [];
                                     modulArray.push(jmodulValue);
-                                    modulArray.push(jserverValue);
 
                                     // Menambahkan elemen-elemen dropdown Module sesuai dengan jumlah modul
                                     var moduleDropdownContainer = document.getElementById("module-dropdowns");
                                     moduleDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
 
+                                    // Menambahkan elemen-elemen dropdown Server Type sesuai dengan jumlah server type
+                                    var serverTypeDropdownContainer = document.getElementById("server-type-dropdowns");
+                                    serverTypeDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
+
                                     for (var i = 0; i < jmodulValue; i++) {
+                                        var dropdownContainer = document.createElement("div");
+                                        dropdownContainer.classList.add("grid", "grid-cols-2", "gap-4");
+
                                         var moduleDropdown = document.createElement("div");
                                         moduleDropdown.classList.add("module-dropdown", "mb-4");
                                         moduleDropdown.innerHTML = `
+        <div class="flex-1">
             <label for="module_id_${i}" class="block mb-2 text-sm font-bold text-gray-600">Module ${i + 1}:</label>
             <div class="flex items-center">
                 <select id="module_id_${i}" name="module_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
@@ -76,102 +88,32 @@
                     @endforeach
                 </select>
             </div>
-        `;
-                                        moduleDropdownContainer.appendChild(moduleDropdown);
+        </div>
+    `;
 
-                                        // Tambahkan event listener untuk setiap dropdown module
-                                        var moduleDropdownSelect = moduleDropdown.querySelector(`#module_id_${i}`);
-                                        moduleDropdownSelect.addEventListener('change', function(event) {
-                                            updateServerTypeDropdowns(event.target);
-                                        });
-                                    }
-
-                                    // Menambahkan elemen-elemen dropdown Server Type sesuai dengan jumlah server type
-                                    var serverTypeDropdownContainer = document.getElementById("server-type-dropdowns");
-                                    serverTypeDropdownContainer.innerHTML = ""; // Menghapus semua elemen sebelumnya
-
-                                    for (var j = 0; j < jserverValue; j++) {
                                         var serverTypeDropdown = document.createElement("div");
                                         serverTypeDropdown.classList.add("server-type-dropdown", "mb-4");
                                         serverTypeDropdown.innerHTML = `
-            <label for="server_type_id_${j}" class="block mb-2 text-sm font-bold text-gray-600">Server Type ${j + 1}:</label>
+        <div class="flex-1">                                 
+            <label for="server_type_id_${i}" class="block mb-2 text-sm font-bold text-gray-600">Server Type ${i + 1}:</label>
             <div class="flex items-center">
-                <select id="server_type_id_${j}" name="server_type_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
-                    <option value="" disabled selected>-- Pilih Server Type (Pilih Module Terlebih Dahulu)--</option>
+                <select id="server_type_id_${i}" name="server_type_id[]" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" required>
+                    <option value="" disabled selected>-- Pilih Server Type --</option>
                     <!-- Options will be populated based on the selected module -->
                     @foreach ($serverTypes as $serverType)
                         <option value="{{ $serverType->id }}">{{ $serverType->name }}</option>
                     @endforeach
                 </select>
             </div>
-        `;
-                                        serverTypeDropdownContainer.appendChild(serverTypeDropdown);
+        </div>
+    `;
+
+                                        dropdownContainer.appendChild(moduleDropdown);
+                                        dropdownContainer.appendChild(serverTypeDropdown);
+
+                                        moduleDropdownContainer.appendChild(dropdownContainer);
                                     }
-                                }
-                                // Fungsi untuk memperbarui dropdown Server Type saat module dipilih
-                                // Inisialisasi objek untuk menyimpan opsi server type dari setiap modul yang dipilih
-                                var selectedServerTypes = {};
 
-                                // Inisialisasi objek untuk menyimpan opsi server type dari setiap modul yang dipilih
-                                var selectedServerTypes = {};
-
-                                // Fungsi untuk memperbarui dropdown Server Type saat module dipilih
-                                function updateServerTypeDropdowns(selectedModuleDropdown) {
-                                    var moduleId = selectedModuleDropdown.value;
-                                    var serverTypeDropdowns = document.querySelectorAll('[name="server_type_id[]"]');
-                                    var serverTypeDropdownId = selectedModuleDropdown.id.replace("module_id_", ""); // Mendapatkan index dropdown modul
-
-                                    // Mengecek apakah module dipilih
-                                    if (moduleId) {
-                                        // Fetch server types untuk module yang dipilih
-                                        fetch(`/api/modules/${moduleId}/server-types`, {
-                                                method: 'GET',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                },
-                                            })
-                                            .then(response => response.json())
-                                            .then(serverTypes => {
-                                                // Simpan pilihan server type untuk modul yang dipilih
-                                                selectedServerTypes[serverTypeDropdownId] = serverTypes;
-
-                                                // Gabungkan opsi server type dari semua modul yang dipilih
-                                                var combinedServerTypes = [];
-                                                Object.values(selectedServerTypes).forEach(types => {
-                                                    combinedServerTypes = combinedServerTypes.concat(types);
-                                                });
-
-                                                // Tambahkan opsi baru ke semua dropdown Server Type
-                                                serverTypeDropdowns.forEach(serverTypeDropdown => {
-                                                    // Kosongkan dropdown Server Type
-                                                    serverTypeDropdown.innerHTML = "";
-                                                    combinedServerTypes.forEach(serverType => {
-                                                        var option = document.createElement('option');
-                                                        option.value = serverType.id;
-                                                        option.textContent = serverType.name;
-                                                        serverTypeDropdown.appendChild(option);
-                                                    });
-                                                });
-                                            })
-                                            .catch(error => {
-                                                console.error('Error fetching server types:', error);
-                                            });
-                                    } else {
-                                        // Kosongkan dropdown Server Type jika module tidak dipilih
-                                        serverTypeDropdowns.forEach(serverTypeDropdown => {
-                                            serverTypeDropdown.innerHTML = "";
-                                            serverTypeDropdown.disabled = true; // Menonaktifkan dropdown Server Type
-                                            var defaultOption = document.createElement('option');
-                                            defaultOption.value = "";
-                                            defaultOption.textContent = "-- Pilih Module Terlebih Dahulu --";
-                                            defaultOption.disabled = true;
-                                            defaultOption.selected = true;
-                                            serverTypeDropdown.appendChild(defaultOption);
-                                        });
-
-                                        // Hapus pilihan server type untuk modul yang dipilih
-                                        delete selectedServerTypes[serverTypeDropdownId];
-                                    }
                                 }
                             </script>
 
@@ -185,12 +127,6 @@
                                 <!-- Ini akan diisi dengan dropdown Server Type setelah tombol "Tambahkan" ditekan -->
                             </div>
 
-                            <!-- Deploy Date -->
-                            <div class="mb-4">
-                                <label for="deploy_date" class="block mb-2 text-sm font-bold text-gray-600">Deploy
-                                    Date:</label>
-                                <input type="date" id="deploy_date" name="deploy_date" class="block w-full px-4 py-3 leading-tight text-gray-700 bg-gray-200 border border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-gray-500" value="{{ old('deploy_date') }}" required>
-                            </div>
                         </div>
 
                         <div>

@@ -25,12 +25,12 @@ class Deployment extends Model
     // Relationships
     public function module()
     {
-        return $this->hasMany(DeploymentModule::class);
+        return $this->belongsTo(DeploymentModule::class);
     }
 
     public function serverType()
     {
-        return $this->hasMany(DeploymentServerType::class);
+        return $this->belongsTo(DeploymentServerType::class);
     }
 
     

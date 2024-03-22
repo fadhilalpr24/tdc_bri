@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Deployment extends Model
 {
     use HasFactory;
-    // protected $primaryKey = 'id';
-    // public $incrementing = false;
+    protected $primaryKey = 'id';
+    public $incrementing = false;
     protected $fillable = [
-        'id_deployment',
+        'id',
         'title',
         'module_id',
         'server_type_id',

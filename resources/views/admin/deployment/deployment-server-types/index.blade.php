@@ -49,10 +49,6 @@
             data: 'name',
             name: 'name'
           },
-          // {
-          //   data: 'module.name', // asumsikan ada kolom 'name' di tabel module
-          //   name: 'module.name'
-          // },
           {
                 data: 'is_active',
                 name: 'is_active',

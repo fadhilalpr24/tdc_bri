@@ -11,20 +11,8 @@ class DeploymentServerType extends Model
 
     protected $fillable = [
         'name',
-        // 'module_id',
         'is_active',
     ];
-
-    // Relationships
-    // public function module()
-    // {
-    //     return $this->belongsToMany(DeploymentModule::class,'deployments', 'module_id', 'server_type_id')->withTimeStamps();
-    // }
-
-    // public function deployment()
-    // {
-    //     return $this->hasMany(Deployment::class);
-    // }
 
     public function module()
     {

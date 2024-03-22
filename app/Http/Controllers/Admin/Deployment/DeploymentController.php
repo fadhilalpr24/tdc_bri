@@ -19,13 +19,24 @@ class DeploymentController extends Controller
     {
         if (request()->ajax()) {
             $query = Deployment::with(['module', 'serverType']);
+            // $query = Deployment::query();
 
             return DataTables::of($query)
+                // ->addColumn('module', function ($deployment) {
+                //     return $deployment->module->name;
+                // })
+                // ->addColumn('server_type', function ($deployment) {
+                //     return $deployment->serverType->name;
+                // })
                 ->addColumn('module', function ($deployment) {
-                    return $deployment->module->name;
+                    $moduleIds = explode(',', $deployment->module_id);
+                    $moduleNames = DeploymentModule::whereIn('name', $moduleIds)->pluck('name')->implode(', ');
+                    return $moduleNames;
                 })
                 ->addColumn('server_type', function ($deployment) {
-                    return $deployment->serverType->name;
+                    $serverTypeIds = explode(',', $deployment->server_type_id);
+                    $serverTypeNames = DeploymentServerType::whereIn('name', $serverTypeIds)->pluck('name')->implode(', ');
+                    return $serverTypeNames;
                 })
                 ->addColumn('updated_at', function ($deployment) {
                     return $deployment->updated_at->format('d F Y H:i:s'); // Format the date as needed
@@ -66,14 +77,17 @@ class DeploymentController extends Controller
     /**
      * Store a new deployment.
      */
-    public function store(Request $request){
-        
-        //ini untuk mengubah id_deployment
-        $title = $request->input('title');
-        $deploy_date = $request->input('deploy_date');
-        $idDeploy = $title . '_' . str_replace('-', '', $deploy_date);
+    public function store(Request $request)
+    {
+        // $modules = implode(',', $request->module_id);
+        // $serverType = implode(',', $request->server_type_id);
 
-        $request->merge(['id_deployment' => $idDeploy]);
+        // // // ini untuk mengubah id
+        // $title = $request->input('title');
+        // $deploy_date = $request->input('deploy_date');
+        // $id = $title . '_' . str_replace('-', '', $deploy_date);
+
+        // $request->merge(['id' => $id]);
 
         // if (Deployment::where('title', $request->title)->exists()) {
         //     return redirect()->back()
@@ -81,22 +95,34 @@ class DeploymentController extends Controller
         //         ->with('error', 'Deployment already exists. Please choose another title.');
         // }
 
-        $data = [
-            'id_deployment' => $idDeploy,
-            'title' => $title,
-            'module_id' => $request->input('module_id'),
-            'server_type_id' => $request->input('server_type_id'),
-            'deploy_date' => $deploy_date,
-            'document_status' => $request->input('document_status'),
-            'document_description' => $request->input('document_description'),
-            'cm_status' => $request->input('cm_status'),
-            'cm_description' => $request->input('cm_description'),
-        ];
+        // $data = [
+        //     'id' => $id,
+        //     'title' => $title,
+        //     'module_id' => $modules,
+        //     'server_type_id' => $serverType,
+        //     'deploy_date' => $deploy_date,
+        //     'document_status' => $request->input('document_status'),
+        //     'document_description' => $request->input('document_description'),
+        //     'cm_status' => $request->input('cm_status'),
+        //     'cm_description' => $request->input('cm_description'),
+        // ];
 
-        Deployment::create($data);
+        // Deployment::create($data);
 
-        return redirect()->route('admin.deployments.deployment.index')
-            ->with('success', 'Success Create Deployment');
+        echo '<pre>';
+        var_dump($_POST);
+        echo '</pre>';
+
+        // echo '<pre>';
+        // var_dump($modules);
+        // echo '</pre>';
+
+        // echo '<pre>';
+        // var_dump($serverType);
+        // echo '</pre>';
+
+        // return redirect()->route('admin.deployments.deployment.index')
+        //     ->with('success', 'Success Create Deployment');
     }
 
     /**
@@ -112,43 +138,45 @@ class DeploymentController extends Controller
         $modules = DeploymentModule::where('is_active', 1)->get();
         $serverTypes = DeploymentServerType::where('is_active', 1)->get();
 
-        if ($module->is_active == 0) {
-            $modules->push($module);
-        }
+        // if ($module->is_active == 0) {
+        //     $modules->push($module);
+        // }
 
-        if ($serverType->is_active == 0) {
-            $serverTypes->push($serverType);
-        }
-        return view('admin.deployment.deployments.edit', compact('deployment', 'modules', 'serverTypes'));
+        // if ($serverType->is_active == 0) {
+        //     $serverTypes->push($serverType);
+        // }
+        return view('admin.deployment.deployments.edit', compact('id', 'deployment', 'modules', 'serverTypes'));
     }
 
-    public function update(Request $request, Deployment $deployment) //masih error
+    public function update(Request $request, Deployment $deployment)
     {
 
-        //ini untuk mengubah id_deployment
+        $modules = implode(',', $request->module_id);
+        $serverType = implode(',', $request->server_type_id);
+
         $title = $request->input('title');
         $deploy_date = $request->input('deploy_date');
-        $idDeploy = $title . '_' . str_replace('-', '', $deploy_date);
+        $id = $title . '_' . str_replace('-', '', $deploy_date);
 
-        $request->merge(['id_deployment' => $idDeploy]);
+        $request->merge(['id' => $id]);
 
         $data = [
-            'id_deployment' => $idDeploy,
+            'id' => $id,
             'title' => $title,
-            'module_id' => $request->input('module_id'),
-            'server_type_id' => $request->input('server_type_id'),
+            'module_id' => $modules,
+            'server_type_id' => $serverType,
             'deploy_date' => $deploy_date,
             'document_status' => $request->input('document_status'),
             'document_description' => $request->input('document_description'),
             'cm_status' => $request->input('cm_status'),
             'cm_description' => $request->input('cm_description'),
         ];
-        
-        // if ($deployment->title != $request->title) {
-        //     if (Deployment::where('title', $request->title)->first()) {
-        //         return redirect()->back()->with('error', 'Deployment already exists.');
-        //     }
-        // }
+
+        if ($deployment->title != $request->title) {
+            if (Deployment::where('title', $request->title)->first()) {
+                return redirect()->back()->with('error', 'Deployment already exists.');
+            }
+        }
 
         $deployment->update($data);
 
@@ -186,5 +214,29 @@ class DeploymentController extends Controller
         }
 
         return response()->json($serverTypes);
+    }
+
+    public function jabar(Request $request)
+    {
+        // if (isset($_POST['module_id'])) {
+        //     $module = join("','", $request->get('module_id'));
+        //     $data = DB::select("SELECT * FROM deployment_modules WHERE name IN ('" . $module . "')");
+
+        //     $hasil = '';
+        //     foreach ($data as $value) {
+        //         $hasil .= '<option value="' . $value->name . '">' . $value->id . '/'.$value->name.'</option>';
+        //     }
+        //     echo $hasil;
+        // }
+        if ($request->has('module_id')) {
+            $moduleIds = $request->input('module_id');
+            $data = DB::table('deployment_modules')->whereIn('id', $moduleIds)->get();
+    
+            $hasil = '';
+            foreach ($data as $value) {
+                $hasil .= '<option value="' . $value->name . '">' . $value->id . '/' . $value->name . '</option>';
+            }
+            echo $hasil;
+        }
     }
 }

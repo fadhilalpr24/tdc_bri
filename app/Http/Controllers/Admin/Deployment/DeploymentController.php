@@ -30,12 +30,12 @@ class DeploymentController extends Controller
                 // })
                 ->addColumn('module', function ($deployment) {
                     $moduleIds = explode(',', $deployment->module_id);
-                    $moduleNames = DeploymentModule::whereIn('name', $moduleIds)->pluck('name')->implode(', ');
+                    $moduleNames = DeploymentModule::whereIn('id', $moduleIds)->pluck('name')->implode(', ');
                     return $moduleNames;
                 })
                 ->addColumn('server_type', function ($deployment) {
                     $serverTypeIds = explode(',', $deployment->server_type_id);
-                    $serverTypeNames = DeploymentServerType::whereIn('name', $serverTypeIds)->pluck('name')->implode(', ');
+                    $serverTypeNames = DeploymentServerType::whereIn('id', $serverTypeIds)->pluck('name')->implode(', ');
                     return $serverTypeNames;
                 })
                 ->addColumn('updated_at', function ($deployment) {
@@ -79,39 +79,39 @@ class DeploymentController extends Controller
      */
     public function store(Request $request)
     {
-        // $modules = implode(',', $request->module_id);
-        // $serverType = implode(',', $request->server_type_id);
+        $modules = implode(',', $request->module_id);
+        $serverType = implode(',', $request->server_type_id);
 
-        // // // ini untuk mengubah id
-        // $title = $request->input('title');
-        // $deploy_date = $request->input('deploy_date');
-        // $id = $title . '_' . str_replace('-', '', $deploy_date);
+        // // ini untuk mengubah id
+        $title = $request->input('title');
+        $deploy_date = $request->input('deploy_date');
+        $id = $title . '_' . str_replace('-', '', $deploy_date);
 
-        // $request->merge(['id' => $id]);
+        $request->merge(['id' => $id]);
 
-        // if (Deployment::where('title', $request->title)->exists()) {
-        //     return redirect()->back()
-        //         ->withInput()
-        //         ->with('error', 'Deployment already exists. Please choose another title.');
-        // }
+        if (Deployment::where('title', $request->title)->exists()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Deployment already exists. Please choose another title.');
+        }
 
-        // $data = [
-        //     'id' => $id,
-        //     'title' => $title,
-        //     'module_id' => $modules,
-        //     'server_type_id' => $serverType,
-        //     'deploy_date' => $deploy_date,
-        //     'document_status' => $request->input('document_status'),
-        //     'document_description' => $request->input('document_description'),
-        //     'cm_status' => $request->input('cm_status'),
-        //     'cm_description' => $request->input('cm_description'),
-        // ];
+        $data = [
+            'id' => $id,
+            'title' => $title,
+            'module_id' => $modules,
+            'server_type_id' => $serverType,
+            'deploy_date' => $deploy_date,
+            'document_status' => $request->input('document_status'),
+            'document_description' => $request->input('document_description'),
+            'cm_status' => $request->input('cm_status'),
+            'cm_description' => $request->input('cm_description'),
+        ];
 
-        // Deployment::create($data);
+        Deployment::create($data);
 
-        echo '<pre>';
-        var_dump($_POST);
-        echo '</pre>';
+        // echo '<pre>';
+        // var_dump($_POST);
+        // echo '</pre>';
 
         // echo '<pre>';
         // var_dump($modules);
@@ -121,8 +121,8 @@ class DeploymentController extends Controller
         // var_dump($serverType);
         // echo '</pre>';
 
-        // return redirect()->route('admin.deployments.deployment.index')
-        //     ->with('success', 'Success Create Deployment');
+        return redirect()->route('admin.deployments.deployment.index')
+            ->with('success', 'Success Create Deployment');
     }
 
     /**
